@@ -41,29 +41,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * ListView subclass that mediates drag and drop resorting of items.
- * 
- * 
+ *
+ *
  * @author heycosmo
  *
  */
 public class DragSortListView extends ListView {
-	
+
 	// Drag states
 	public final static int NO_DRAG = 0;
 	public final static int SRC_EXP = 1;
 	public final static int SRC_ABOVE = 2;
 	public final static int SRC_BELOW = 3;
-	
+
 	private int mDragState = NO_DRAG;
-	
+
 	private ImageView mFloatView;
   private int mFloatBGColor;
 	private WindowManager mWindowManager;
 	private WindowManager.LayoutParams mWindowParams;
-	
+
 	/**
 	 * Top of ListView in absolute (full, virtual list) y-coords.
 	 */
@@ -71,7 +70,7 @@ public class DragSortListView extends ListView {
 	private int mSrcBottom;
 	private int mExpTop;
 	private int mExpBottom;
-	
+
 	/**
 	 * At which position is the item currently being dragged. All drag positions
 	 * are absolute list view positions; e.g. if there is one header view, and
@@ -114,28 +113,28 @@ public class DragSortListView extends ListView {
   private ArrayList<Integer> mFooterHeights = new ArrayList<Integer>();
   private int mHeadersTotalHeight = 0;
   private int mFootersTotalHeight = 0;
-	
+
 	private DragScroller mDragScroller;
 	private float mDragUpScrollStartFrac = 1.0f / 3.0f;
 	private float mDragDownScrollStartFrac = 1.0f / 3.0f;
   private float mDragUpScrollHeight;
 	private float mDragDownScrollHeight;
-	
+
 	private float mMaxScrollSpeed = 0.3f; // pixels per millisec
 
   private boolean mTrackDragScroll = false;
-	
+
 	private DragScrollProfile mScrollProfile = new DragScrollProfile() {
 		@Override
 		public float getSpeed(float w, long t) {
 			return mMaxScrollSpeed * w;
 		}
 	};
-	
+
 	private int mLastX;
 	private int mLastY;
 	private int mDownY;
-	
+
 	private AdapterWrapper mAdapterWrapper;
 
 	public DragSortListView(Context context, AttributeSet attrs) {
@@ -173,33 +172,33 @@ public class DragSortListView extends ListView {
 		mDragScroller = new DragScroller();
 		setOnScrollListener(mDragScroller);
 	}
-	
+
 	/**
 	 * Set maximum drag scroll speed in positions/second. Only applies
 	 * if using default ScrollSpeedProfile.
-	 * 
+	 *
 	 * @param max Maximum scroll speed.
 	 */
 	public void setMaxScrollSpeed(float max) {
 		mMaxScrollSpeed = max;
 	}
-	
+
 	@Override
 	public void setAdapter(ListAdapter adapter) {
 		//mAdapterWrapper = new AdapterWrapper(adapter);
 		mAdapterWrapper = new AdapterWrapper(null, null, adapter);
-		
+
 		super.setAdapter(mAdapterWrapper);
 
 		dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0f, 0f, 0));
 	}
-	
+
   /**
    * As opposed to {@link ListView#getAdapter()}, which returns
    * a heavily wrapped ListAdapter (DragSortListView wraps the
    * input ListAdapter {\emph and} ListView wraps the wrapped one).
    *
-   * @return The ListAdapter set as the argument of {@link setAdapter()}
+   * @return The ListAdapter set as the argument of {@link ListView#setAdapter(ListAdapter)}
    */
 	public ListAdapter getInputAdapter() {
 		if (mAdapterWrapper == null) {
@@ -209,21 +208,21 @@ public class DragSortListView extends ListView {
 		}
 	}
 
-	
+
 	private class AdapterWrapper extends HeaderViewListAdapter {
 		private ListAdapter mAdapter;
-		
+
 		public AdapterWrapper(ArrayList<FixedViewInfo> headerViewInfos,
 				ArrayList<FixedViewInfo> footerViewInfos, ListAdapter adapter) {
 			super(headerViewInfos, footerViewInfos, adapter);
 			mAdapter = adapter;
 		}
-		
+
 		public ListAdapter getAdapter() {
 			return mAdapter;
 		}
 
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -248,7 +247,7 @@ public class DragSortListView extends ListView {
 
       } else {
         AbsListView.LayoutParams params =
-          new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+          new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT);
         v = new RelativeLayout(getContext());
         v.setLayoutParams(params);
@@ -280,7 +279,7 @@ public class DragSortListView extends ListView {
 					lp.height = mItemHeightCollapsed;
 				} else if (position == expAdapter) {
 					// what if a previously-expanded wrapper view is used
-					// as a convertView for a different expanded item? 
+					// as a convertView for a different expanded item?
 					// Always measure child
 					int spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
 					child.measure(spec, spec);
@@ -321,7 +320,7 @@ public class DragSortListView extends ListView {
 
 			return v;
 		}
-		
+
 	}
 
   private int getItemHeight(int position) {
@@ -336,7 +335,7 @@ public class DragSortListView extends ListView {
 
 			final ListAdapter adapter = getAdapter();
       int type = adapter.getItemViewType(position);
-			
+
 			// There might be a better place for checking for the following
 			final int typeCount = adapter.getViewTypeCount();
 			if (typeCount != mSampleViewTypes.length) {
@@ -365,7 +364,7 @@ public class DragSortListView extends ListView {
         v.measure(spec, spec);
         return v.getMeasuredHeight();
       }
-        
+
     }
 
   }
@@ -381,7 +380,7 @@ public class DragSortListView extends ListView {
 		}
 
 		int height;
-		
+
 		switch (mDragState) {
 			case SRC_ABOVE:
 				if (position >= mSrcDragPos && position < mExpDragPos) {
@@ -453,7 +452,7 @@ public class DragSortListView extends ListView {
 		final int floatViewMidY = Math.max(mFloatViewHeightHalf + getPaddingTop(),
       Math.min(getHeight() - getPaddingBottom() - mFloatViewHeightHalf,
         y - mDragPointY + mFloatViewHeightHalf));
-		
+
 		// get closest visual item top and position
 		int visItemTop;
 		int visItemPos;
@@ -464,7 +463,7 @@ public class DragSortListView extends ListView {
 				if (position == mSrcDragPos + 1) {
 					visItemTop -= mItemHeightCollapsed + divHeight;
 				}
-				
+
 				if (position > mSrcDragPos && position <= mExpDragPos) {
 					visItemPos = position - 1;
 				} else {
@@ -473,7 +472,7 @@ public class DragSortListView extends ListView {
 				break;
 			case SRC_BELOW:
 				visItemTop = top;
-				if (position == mSrcDragPos) { 
+				if (position == mSrcDragPos) {
 					if (position == getCount() - 1) {
 						int aboveHeight = getItemHeight(position - 1);
 						if (position - 1 == mExpDragPos) {
@@ -518,7 +517,7 @@ public class DragSortListView extends ListView {
 				visItemTop -= getVisualItemHeight(visItemPos);
 				edge = getDragEdge(visItemPos, visItemTop);
 				//Log.d("mobeta", "  edge="+edge);
-				
+
 				if (floatViewMidY >= edge) {
 					break;
 				}
@@ -545,12 +544,12 @@ public class DragSortListView extends ListView {
 				visItemPos++;
 			}
 		}
-		
+
 		//Log.d("mobeta", "edge="+edge);
 
 		final int numHeaders = getHeaderViewsCount();
 		final int numFooters = getFooterViewsCount();
-		
+
 		if (visItemPos < numHeaders) {
 			return numHeaders;
 		} else if (visItemPos >= getCount() - numFooters) {
@@ -561,7 +560,7 @@ public class DragSortListView extends ListView {
 		return visItemPos;
 
 	}
-	
+
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -600,16 +599,16 @@ public class DragSortListView extends ListView {
 				mLastY = y;
 				mDownY = y;
 				int itemnum = pointToPosition(x, y); //includes headers/footers
-				
+
 				final int numHeaders = getHeaderViewsCount();
 				final int numFooters = getFooterViewsCount();
-				
+
 				//Log.d("mobeta", "touch down on position " + itemnum);
 				if (itemnum == AdapterView.INVALID_POSITION || itemnum < numHeaders || itemnum >= getCount() - numFooters) {
 					break;
 				}
 				ViewGroup item = (ViewGroup) getChildAt(itemnum - getFirstVisiblePosition());
-				
+
 				mDragPointX = x - item.getLeft();
 				mDragPointY = y - item.getTop();
         final int rawX = (int) ev.getRawX();
@@ -622,7 +621,7 @@ public class DragSortListView extends ListView {
         boolean dragHit = false;
         if (dragBox != null) {
           dragBox.getLocationOnScreen(mTempLoc);
-          
+
           dragHit = rawX > mTempLoc[0] && rawY > mTempLoc[1] &&
                     rawX < mTempLoc[0] + dragBox.getWidth() &&
                     rawY < mTempLoc[1] + dragBox.getHeight();
@@ -638,13 +637,13 @@ public class DragSortListView extends ListView {
 
           mFloatViewHeight = item.getHeight();
           mFloatViewHeightHalf = mFloatViewHeight / 2;
-					
+
 					mExpDragPos = itemnum;
 					mSrcDragPos = itemnum;
-					
+
 					//Log.d("mobeta", "getCount() = " + getCount());
 					//Log.d("mobeta", "headers = " + getHeaderViewsCount());
-					
+
 					startDragging(bitmap, x, y);
 
           // cancel ListView fling
@@ -661,20 +660,20 @@ public class DragSortListView extends ListView {
 		}
 		return super.onInterceptTouchEvent(ev);
 	}
-	
+
   /**
    * Set the width of each drag scroll region by specifying
    * a fraction of the ListView height.
    *
    * @param heightFraction Fraction of ListView height. Capped at
    * 0.5f.
-   * 
+   *
    */
 	public void setDragScrollStart(float heightFraction) {
     setDragScrollStarts(heightFraction, heightFraction);
 	}
-	
-	
+
+
   /**
    * Set the width of each drag scroll region by specifying
    * a fraction of the ListView height.
@@ -683,7 +682,7 @@ public class DragSortListView extends ListView {
    * Capped at 0.5f.
    * @param lowerFrac Fraction of ListView height for down-scroll bound.
    * Capped at 0.5f.
-   * 
+   *
    */
 	public void setDragScrollStarts(float upperFrac, float lowerFrac) {
     if (lowerFrac > 0.5f) {
@@ -707,7 +706,7 @@ public class DragSortListView extends ListView {
     final int padTop = getPaddingTop();
 		final int listHeight = getHeight() - padTop - getPaddingBottom();
     float heightF = (float) listHeight;
-		
+
     mUpScrollStartYF = padTop + mDragUpScrollStartFrac * heightF;
     mDownScrollStartYF = padTop + (1.0f - mDragDownScrollStartFrac) * heightF;
 
@@ -715,12 +714,12 @@ public class DragSortListView extends ListView {
 		mDownScrollStartY = (int) mDownScrollStartYF;
     Log.d("mobeta", "up start="+mUpScrollStartY);
     Log.d("mobeta", "down start="+mDownScrollStartY);
-		
+
 		mDragUpScrollHeight = mUpScrollStartYF - padTop;
 		mDragDownScrollHeight = padTop + listHeight - mDownScrollStartYF;
   }
-	
-	
+
+
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     super.onSizeChanged(w, h, oldw, oldh);
@@ -745,7 +744,7 @@ public class DragSortListView extends ListView {
   @Override
   public void addHeaderView(View v, Object data, boolean isSelectable) {
     super.addHeaderView(v, data, isSelectable);
-		
+
 		mHeaderHeights.add(getViewHeight(v));
 
     mHeadersTotalHeight += mHeaderHeights.get(mHeaderHeights.size() - 1);
@@ -765,7 +764,7 @@ public class DragSortListView extends ListView {
 	private void dropFloatView(boolean removeSrcItem) {
 
 		mDragScroller.stopScrolling(true);
-		
+
 		if (removeSrcItem) {
 			if (mRemoveListener != null) {
 				mRemoveListener.remove(mSrcDragPos - getHeaderViewsCount());
@@ -800,19 +799,19 @@ public class DragSortListView extends ListView {
 				ViewGroup.LayoutParams lp = srcView.getLayoutParams();
 				lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 				srcView.requestLayout();
-				
+
 				srcView.setVisibility(View.VISIBLE);
 			}
 		}
-		
+
 		removeFloatView();
-		
+
 		mDragState = NO_DRAG;
 	}
 
 
-	
-	
+
+
 	/**
 	 * Call this when list items are shuffled while dragging.
 	 */
@@ -827,10 +826,10 @@ public class DragSortListView extends ListView {
 		} else {
 			mDragState = SRC_BELOW;
 		}
-		
+
 	}
-	
-	
+
+
 
 	/**
    * Smart item expansion.
@@ -849,7 +848,7 @@ public class DragSortListView extends ListView {
 			} else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT && position != mExpDragPos) {
 				// expanding normal item
 				lp.height = v.getHeight() + mFloatViewHeight;
-				
+
 				// must set gravity in this case
 				if (position > mSrcDragPos) {
 					v.setGravity(Gravity.TOP);
@@ -861,7 +860,7 @@ public class DragSortListView extends ListView {
 				//if (position == first && mDragState == SRC_ABOVE) {
 				//	setSelectionFromTop(first, getChildAt(0).getTop() - mFloatViewHeight + getPaddingTop());
 				//}
-				
+
 			} else {
         Log.d("mobeta", "expand item skipped");
       }
@@ -901,14 +900,14 @@ public class DragSortListView extends ListView {
 		}
 
 	}
-	
+
 	/**
 	 * Shuffle list items given new float position.
-	 * 
-	 * @param floatPos 
+	 *
+	 * @param floatPos
 	 */
 	private boolean shuffleItems(int floatPos) {
-		
+
 		//Log.d("mobeta", "float position: " + floatPos);
 		//Log.d("mobeta", "exp position: " + mExpDragPos);
 		//Log.d("mobeta", "first position: " + getFirstVisiblePosition() + " height: " + getChildAt(0).getHeight());
@@ -920,13 +919,13 @@ public class DragSortListView extends ListView {
       //Log.d("mobeta", "collapsing="+mExpDragPos+" expanding="+floatPos);
 			collapseItem(mExpDragPos);
 			expandItem(floatPos);
-			
+
 			// callback
 			if (mDragListener != null) {
 				final int numHeaders = getHeaderViewsCount();
 				mDragListener.drag(mExpDragPos - numHeaders, floatPos - numHeaders);
 			}
-			
+
 			// update state
 			mExpDragPos = floatPos;
 			updateListState();
@@ -936,10 +935,10 @@ public class DragSortListView extends ListView {
 			return false;
 		}
 	}
-	
+
   @Override
   protected void layoutChildren() {
-	
+
 		// we need to control calls to layoutChildren while
 		// dragging to prevent things happening out of order
 		if (mFloatView == null) {
@@ -954,29 +953,31 @@ public class DragSortListView extends ListView {
 			mGestureDetector.onTouchEvent(ev);
 		}
 		if ((mDragListener != null || mDropListener != null) && mFloatView != null) {
-			int action = ev.getAction(); 
+			int action = ev.getAction();
+
+			final int x = (int) ev.getX();
+			final int y = (int) ev.getY();
+
 			switch (action & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
 				Rect r = mTempRect;
 				mFloatView.getDrawingRect(r);
 				//mDragScroller.stopScrolling(true);
-				
+
 				if (mRemoveMode == SLIDE && ev.getX() > r.right * 3 / 4) {
 					dropFloatView(true);
 				} else {
 					dropFloatView(false);
 				}
-				
+
 				break;
 
 			case MotionEvent.ACTION_DOWN:
 				//doExpansion();
 				break;
 			case MotionEvent.ACTION_MOVE:
-				int x = (int) ev.getX();
-				int y = (int) ev.getY();
-				
+
 				// make src item invisible on first move away from pickup
 				// point. Reduces flicker.
 				if (mLastY == mDownY) {
@@ -986,7 +987,7 @@ public class DragSortListView extends ListView {
             item.setVisibility(INVISIBLE);
           }
 				}
-				
+
 				dragView(x, y);
 
 				if (!mDragScroller.isScrolling()) {
@@ -1002,7 +1003,7 @@ public class DragSortListView extends ListView {
 						startPos = mExpDragPos;
 						startTop = startView.getTop();
 					}
-						
+
 					//Log.d("mobeta", "move shuffle");
 					boolean shuffled = shuffleItems(getFloatPosition(y, startPos, startTop));
 
@@ -1010,41 +1011,43 @@ public class DragSortListView extends ListView {
 						super.layoutChildren();
 					}
 				}
-				
-        //Log.d("mobeta", "down scroll start="+mDownScrollStartY);
-        //Log.d("mobeta", "up scroll start="+mUpScrollStartY);
-				// start or stop drag scrolling
-				if (y > mDownScrollStartY) {
 
-					if (mLastY <= mDownScrollStartY) {
-						if (mDragScroller.isScrolling()) {
-							// moved directly from upscroll to down scroll
-							mDragScroller.stopScrolling(true);
-						}
-						//Log.d("mobeta", "start drag scrolling down");
-						// just entered lower drag-scroll region
-						mLastY = y;
-						mDragScroller.startScrolling(DragScroller.DOWN);
+				// get the current scroll direction
+				int currentScrollDir = mDragScroller.getScrollDir();
+
+				if (y > mLastY && y > mDownScrollStartY && currentScrollDir != DragScroller.DOWN) {
+					// dragged down, it is below the down scroll start and it is not scrolling up
+
+					if (currentScrollDir != DragScroller.STOP) {
+						// moved directly from up scroll to down scroll
+						mDragScroller.stopScrolling(true);
 					}
-				} else if (y < mUpScrollStartY) {
-					if (mLastY >= mUpScrollStartY) {
-						// just entered upper drag-scroll region
-						if (mDragScroller.isScrolling()) {
-							// moved directly from down-scroll to up-scroll
-							mDragScroller.stopScrolling(true);
-						}
-						mLastY = y;
-						mDragScroller.startScrolling(DragScroller.UP);
+
+					// start scrolling down
+					mDragScroller.startScrolling(DragScroller.DOWN);
+				}
+				else if (y < mLastY && y < mUpScrollStartY && currentScrollDir != DragScroller.UP) {
+					// dragged up, it is above the up scroll start and it is not scrolling up
+
+					if (currentScrollDir != DragScroller.STOP) {
+						// moved directly from down scroll to up scroll
+						mDragScroller.stopScrolling(true);
 					}
-				} else if (mLastY > mDownScrollStartY || mLastY < mUpScrollStartY) {
-					//mDragScroller.stopScrolling(false);
+
+					// start scrolling up
+					mDragScroller.startScrolling(DragScroller.UP);
+				}
+				else if (y >= mUpScrollStartY && y <= mDownScrollStartY && mDragScroller.isScrolling()) {
+					// not in the upper nor in the lower drag-scroll regions but it is still scrolling
+
 					mDragScroller.stopScrolling(true);
 				}
-				
-				mLastX = x;
-				mLastY = y;
 				break;
 			}
+
+			mLastX = x;
+			mLastY = y;
+
 			return true;
 		}
 		return super.onTouchEvent(ev);
@@ -1278,7 +1281,8 @@ public class DragSortListView extends ListView {
 		private float dt;
 		private long tStart;
 		private int scrollDir;
-		
+
+		public final static int STOP = -1;
 		public final static int UP = 0;
 		public final static int DOWN = 1;
 		
@@ -1293,6 +1297,10 @@ public class DragSortListView extends ListView {
 		
 		public boolean isScrolling() {
 			return mScrolling;
+		}
+
+		public int getScrollDir() {
+			return mScrolling ? scrollDir : STOP;
 		}
 
 		public DragScroller() {
