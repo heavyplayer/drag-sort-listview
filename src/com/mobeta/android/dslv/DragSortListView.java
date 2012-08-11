@@ -952,7 +952,7 @@ public class DragSortListView extends ListView {
 		if (mGestureDetector != null) {
 			mGestureDetector.onTouchEvent(ev);
 		}
-		if ((mDragListener != null || mDropListener != null) && mFloatView != null) {
+		if (isDragEnabled() && mFloatView != null) {
 			int action = ev.getAction();
 
 			final int x = (int) ev.getX();
@@ -1190,6 +1190,15 @@ public class DragSortListView extends ListView {
 	 */
 	public void setDropListener(DropListener l) {
 		mDropListener = l;
+	}
+
+	public void disableDrag() {
+		mDropListener = null;
+		mDragListener = null;
+	}
+
+	public boolean isDragEnabled() {
+		return mDragListener != null || mDropListener != null;
 	}
 
 	/**
